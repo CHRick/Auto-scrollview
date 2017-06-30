@@ -8,6 +8,11 @@
 
 import UIKit
 
+enum ScrollViewContentType {
+    case image
+    case label
+}
+
 class ScrollView: UIView, UIScrollViewDelegate {
 
     weak var scrollViewDelegate: ScrollViewDelegate?
@@ -17,6 +22,7 @@ class ScrollView: UIView, UIScrollViewDelegate {
     private var thirdImageView: UIImageView!
     private var index = 0
     private var timer: Timer!
+    open var scrollDuration: TimeInterval = 3.0
     var dataSource: Array<ScrollViewDataSourceModel>!
     
     
@@ -100,8 +106,12 @@ class ScrollView: UIView, UIScrollViewDelegate {
     
     private func startTimer() {
         
-        self.timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true, block: { (_) in
-            self.scroll()
+        self.timer = Timer.scheduledTimer(withTimeInterval: self.scrollDuration, repeats: true, block: { (_) in
+            if (self.parentViewController()?.isBeingDismissed)! {
+                self.removeTimer()
+            } else {
+                self.scroll()
+            }
         })
     }
     
@@ -139,6 +149,25 @@ class ScrollView: UIView, UIScrollViewDelegate {
         self.thirdImageView.image = self.dataSource[self.index == self.dataSource.count - 1 ? 0 : self.index + 1].image
         self.scrollView.contentOffset.x = self.bounds.width
         self.indecator.currentPage = self.index
+    }
+    
+    func removeTimer() {
+        if self.timer != nil {
+            self.timer.invalidate()
+            self.timer = nil
+        }
+    }
+    
+    func parentViewController() -> UIViewController? {
+        
+        var responder = self.next
+        while (responder != nil) {
+            if (responder?.isKind(of: UIViewController.self))! {
+                return responder as? UIViewController
+            }
+            responder = responder?.next
+        }
+        return nil
     }
 }
 
