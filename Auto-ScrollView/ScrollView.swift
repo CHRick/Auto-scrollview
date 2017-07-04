@@ -23,6 +23,7 @@ class ScrollView: UIView, UIScrollViewDelegate {
     private var index = 0
     private var timer: Timer!
     open var scrollDuration: TimeInterval = 3.0
+    
     var dataSource: Array<ScrollViewDataSourceModel>!
     
     
